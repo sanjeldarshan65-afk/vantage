@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=IBM+Plex+Mono&display=swap">
+<title>dragonsmithers.com — VANTAGE assessment report</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0607;--panel:#140c0d;--fg:#f1e9e6;--muted:#b3a5a1;--line:#2a1719;--link:#ff6b4a;--ember:#e5392c;--critical:#c81e34;--high:#c2521c;--medium:#9a7400;--low:#2f69ad;--info:#6f6360}
+body{margin:0;background:radial-gradient(60rem 40rem at 75% -10%,rgba(179,32,26,.28),transparent 70%) var(--bg);color:var(--fg);font:15px/1.6 Archivo,system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:var(--link)}h1{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1.05;text-wrap:balance}h2,h3{text-wrap:balance}
+main{max-width:900px;margin:0 auto;padding:32px 16px}
+h1{margin:0 0 4px}h2{border-bottom:1px solid var(--line);padding-bottom:4px;margin-top:36px}
+.meta{color:var(--muted);font-size:13px}code{font:12px "IBM Plex Mono",ui-monospace,Consolas,monospace;word-break:break-all}
+table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.sev{display:inline-block;padding:1px 8px;border-radius:999px;color:#fff;font-size:12px;font-weight:600}
+.sev-critical{background:var(--critical)}.sev-high{background:var(--high)}.sev-medium{background:var(--medium)}.sev-low{background:var(--low)}.sev-info{background:var(--info)}
+.finding{border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:16px 0}.finding h3{margin:0 0 4px}
+.finding,.auth{background:var(--panel)}.auth{border:1px solid var(--line);border-left:4px solid var(--ember);border-radius:8px;padding:12px 16px}
+@media print{:root{color-scheme:light;--bg:#fff;--panel:#fff;--fg:#14171c;--muted:#5b6472;--line:#dde1e7;--link:#b3201a}body{background:#fff}.finding{break-inside:avoid}}
+</style></head><body><main>
+<h1>dragonsmithers.com</h1>
+<p class="meta">Security assessment report · Darshan Sanjel (site owner) · generated 2026-11-18 18:12 UTC · VANTAGE 1.0.0</p>
+<div class="auth"><b>Authorization.</b> Owner-approved self-assessment of own site, 2026-11-18 — authorized by Darshan Sanjel, site owner<br>
+<span class="meta">Window 2026-11-18 18:12 UTC → 2026-11-30 00:00 UTC · mode safe</span></div>
+
+<h2>Executive summary</h2>
+<p><b>Overall risk: Medium.</b> Medium-severity findings are active.</p>
+<p>10 finding(s), 10 still active. 3 of 3 discovered assets tested (100%).</p>
+<table><tr><th>Severity</th><th>Total</th><th>Active</th></tr><tr><td><span class="sev sev-critical">Critical</span></td><td>0</td><td>0</td></tr><tr><td><span class="sev sev-high">High</span></td><td>0</td><td>0</td></tr><tr><td><span class="sev sev-medium">Medium</span></td><td>1</td><td>1</td></tr><tr><td><span class="sev sev-low">Low</span></td><td>3</td><td>3</td></tr><tr><td><span class="sev sev-info">Info</span></td><td>6</td><td>6</td></tr></table>
+
+<h2>Scope</h2>
+<p>In scope: <code>https://dragonsmithers.com:443</code></p>
+
+<h2>Findings</h2>
+
+    <article class="finding" id="f-1">
+      <h3><span class="sev sev-medium">Medium</span> 1. Response is not protected against clickjacking</h3>
+      <p class="meta"><code>web.headers.missing-frame-protection</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>Neither an &#96;X-Frame-Options&#96; header nor a CSP &#96;frame-ancestors&#96; directive is set, so the page can be embedded in a frame on any site.</p>
+      <p><b>Impact.</b> An attacker can overlay the application in an invisible frame and trick a signed-in user into clicking destructive or sensitive actions (clickjacking).</p>
+      <table class="obs"><tr><th>x-frame-options</th><td><code>absent</code></td></tr><tr><th>csp-frame-ancestors</th><td><code>absent</code></td></tr></table>
+      <p><b>Remediation.</b> Set &#96;Content-Security-Policy: frame-ancestors &#39;none&#39;&#96; (or &#96;&#39;self&#39;&#96; if framing is required). Keep &#96;X-Frame-Options: DENY&#96; as a fallback for older browsers.</p>
+      <p class="meta">CWE-1021 · A05:2021 · evidence <code>ev_ecb255dc94f5</code></p>
+      <p class="meta"><a href="https://owasp.org/www-project-secure-headers/#x-frame-options" rel="noreferrer">https://owasp.org/www-project-secure-headers/#x-frame-options</a><br><a href="https://owasp.org/www-community/attacks/Clickjacking" rel="noreferrer">https://owasp.org/www-community/attacks/Clickjacking</a></p>
+    </article>
+    <article class="finding" id="f-2">
+      <h3><span class="sev sev-low">Low</span> 2. Cross-Origin-Opener-Policy (COOP) header is missing</h3>
+      <p class="meta"><code>web.headers.missing-coop</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>The response does not set &#96;Cross-Origin-Opener-Policy&#96;, so a cross-origin window that opens this document keeps a reference to it.</p>
+      <p><b>Impact.</b> Cross-window scripting (XS-Leaks, Spectre-style side channels and window.opener abuse) is easier when the opener relationship is preserved.</p>
+      <table class="obs"><tr><th>cross-origin-opener-policy</th><td><code>absent</code></td></tr></table>
+      <p><b>Remediation.</b> Set &#96;Cross-Origin-Opener-Policy: same-origin&#96; on HTML responses.</p>
+      <p class="meta">CWE-693 · A05:2021 · evidence <code>ev_ecb255dc94f5</code></p>
+      <p class="meta"><a href="https://owasp.org/www-project-secure-headers/#cross-origin-opener-policy" rel="noreferrer">https://owasp.org/www-project-secure-headers/#cross-origin-opener-policy</a></p>
+    </article>
+    <article class="finding" id="f-3">
+      <h3><span class="sev sev-low">Low</span> 3. HSTS policy does not cover subdomains</h3>
+      <p class="meta"><code>web.headers.hsts-missing-include-subdomains</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>The Strict-Transport-Security header does not include the &#96;includeSubDomains&#96; directive, so the policy only protects the exact host that sent it.</p>
+      <p><b>Impact.</b> HTTP-only subdomains (staging, legacy portals, mail front-ends) remain reachable over cleartext and can be used to steal cookies scoped to the parent domain.</p>
+      <table class="obs"><tr><th>strict-transport-security</th><td><code>max-age=31556952</code></td></tr></table>
+      <p><b>Remediation.</b> Add &#96;includeSubDomains&#96; to the header once every subdomain serves HTTPS: &#96;Strict-Transport-Security: max-age=31536000; includeSubDomains&#96;.</p>
+      <p class="meta">CWE-319 · A02:2021 · evidence <code>ev_ecb255dc94f5</code></p>
+      <p class="meta"><a href="https://owasp.org/www-project-secure-headers/#strict-transport-security" rel="noreferrer">https://owasp.org/www-project-secure-headers/#strict-transport-security</a></p>
+    </article>
+    <article class="finding" id="f-4">
+      <h3><span class="sev sev-low">Low</span> 4. X-Content-Type-Options header is missing</h3>
+      <p class="meta"><code>web.headers.missing-x-content-type-options</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>The response does not set &#96;X-Content-Type-Options: nosniff&#96;, so some browsers will sniff a body and execute it as a type the server did not declare.</p>
+      <p><b>Impact.</b> A user-uploaded file that is served back with a permissive content type can be interpreted as HTML or script, turning a file upload into stored XSS.</p>
+      <table class="obs"><tr><th>x-content-type-options</th><td><code>absent</code></td></tr></table>
+      <p><b>Remediation.</b> Set &#96;X-Content-Type-Options: nosniff&#96; on every response (it is cheap and safe to apply globally).</p>
+      <p class="meta">CWE-16 · A05:2021 · evidence <code>ev_ecb255dc94f5</code></p>
+      <p class="meta"><a href="https://owasp.org/www-project-secure-headers/#x-content-type-options" rel="noreferrer">https://owasp.org/www-project-secure-headers/#x-content-type-options</a></p>
+    </article>
+    <article class="finding" id="f-5">
+      <h3><span class="sev sev-info">Info</span> 5. Content-Security-Policy is set with a meta tag only</h3>
+      <p class="meta"><code>web.headers.csp-meta-only</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>The page declares its CSP in a &lt;meta http-equiv&gt; tag instead of a response header. Browsers enforce its fetch directives, but ignore frame-ancestors, sandbox and report-uri/report-to in a meta policy.</p>
+      <p><b>Impact.</b> Framing control and violation reporting are unavailable; the policy also only starts applying once the tag is parsed.</p>
+      <table class="obs"><tr><th>meta content-security-policy</th><td><code>default-src &#39;self&#39;; script-src &#39;self&#39; https://static.cloudflareinsights.com; style-src &#39;self&#39;; img-src &#39;self&#39; data:; font-src &#39;self&#39;; connect-src &#39;self&#39; https://cloudflareinsights.com; form-action &#39;self&#39;; base-uri &#39;self&#39;; object-src &#39;none&#39;; frame-src &#39;none&#39;; upgrade-insecure-requests</code></td></tr></table>
+      <p><b>Remediation.</b> Where the host allows it, send the policy as a Content-Security-Policy response header. On hosts that cannot set headers (for example GitHub Pages), put the site behind a CDN that can, such as Cloudflare.</p>
+      <p class="meta">CWE-693 · A05:2021 · evidence <code>ev_ecb255dc94f5</code></p>
+      <p class="meta"><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv" rel="noreferrer">https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv</a></p>
+    </article>
+    <article class="finding" id="f-6">
+      <h3><span class="sev sev-info">Info</span> 6. CORS wildcard origin policy is enabled</h3>
+      <p class="meta"><code>web.cors.wildcard-origin</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>The endpoint returns &#96;Access-Control-Allow-Origin: *&#96;, so any origin can read its responses. No credentials are shared, so this is only a problem if the response contains data that should not be world-readable.</p>
+      <p><b>Impact.</b> Any website can fetch and read this resource on behalf of the visitor (including intranet-only data reachable through the visitor&#39;s network position).</p>
+      <table class="obs"><tr><th>access-control-allow-origin</th><td><code>*</code></td></tr><tr><th>access-control-allow-credentials</th><td><code>false</code></td></tr><tr><th>responses</th><td><code>GET, Origin: null GET</code></td></tr></table>
+      <p><b>Remediation.</b> If the data is truly public this is acceptable — document it. Otherwise replace the wildcard with an exact origin allow-list and drop &#96;Access-Control-Allow-Credentials&#96; from responses that do not need it.</p>
+      <p class="meta">CWE-942 · A05:2021 · evidence <code>ev_92892c4570f3</code> <code>ev_ba08e8a9fe82</code></p>
+      <p class="meta"><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" rel="noreferrer">https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS</a><br><a href="https://portswigger.net/web-security/cors" rel="noreferrer">https://portswigger.net/web-security/cors</a></p>
+    </article>
+    <article class="finding" id="f-7">
+      <h3><span class="sev sev-info">Info</span> 7. Cross-Origin-Embedder-Policy (COEP) header is missing</h3>
+      <p class="meta"><code>web.headers.missing-coep</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>The response does not set &#96;Cross-Origin-Embedder-Policy&#96;. Without COEP the page is not cross-origin isolated, so powerful isolation-based mitigations are unavailable.</p>
+      <p><b>Impact.</b> Some browser hardening features (high-precision timers, SharedArrayBuffer) are unavailable and cross-origin reads are less constrained.</p>
+      <table class="obs"><tr><th>cross-origin-embedder-policy</th><td><code>absent</code></td></tr></table>
+      <p><b>Remediation.</b> Set &#96;Cross-Origin-Embedder-Policy: require-corp&#96; once embedded resources opt in via CORP.</p>
+      <p class="meta">CWE-693 · A05:2021 · evidence <code>ev_ecb255dc94f5</code></p>
+      <p class="meta"><a href="https://owasp.org/www-project-secure-headers/#cross-origin-embedder-policy" rel="noreferrer">https://owasp.org/www-project-secure-headers/#cross-origin-embedder-policy</a></p>
+    </article>
+    <article class="finding" id="f-8">
+      <h3><span class="sev sev-info">Info</span> 8. Cross-Origin-Resource-Policy (CORP) header is missing</h3>
+      <p class="meta"><code>web.headers.missing-corp</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>The response does not declare a &#96;Cross-Origin-Resource-Policy&#96;, so it can be embedded cross-origin.</p>
+      <p><b>Impact.</b> Third-party pages can load the resource in no-cors mode, easing cross-origin data probing (e.g. XS-Leaks).</p>
+      <table class="obs"><tr><th>cross-origin-resource-policy</th><td><code>absent</code></td></tr></table>
+      <p><b>Remediation.</b> Set &#96;Cross-Origin-Resource-Policy: same-origin&#96; (or &#96;same-site&#96; where needed) on sensitive responses.</p>
+      <p class="meta">CWE-693 · A05:2021 · evidence <code>ev_ecb255dc94f5</code></p>
+      <p class="meta"><a href="https://owasp.org/www-project-secure-headers/#cross-origin-resource-policy" rel="noreferrer">https://owasp.org/www-project-secure-headers/#cross-origin-resource-policy</a></p>
+    </article>
+    <article class="finding" id="f-9">
+      <h3><span class="sev sev-info">Info</span> 9. No security.txt file</h3>
+      <p class="meta"><code>web.securitytxt.missing</code> · https://dragonsmithers.com/.well-known/security.txt · confidence confirmed · status open · seen 1×</p>
+      <p>There is no /.well-known/security.txt telling researchers how to report a vulnerability.</p>
+      <p><b>Impact.</b> People who find a problem may not report it, or may report it publicly.</p>
+      <table class="obs"><tr><th>status</th><td><code>404</code></td></tr></table>
+      <p><b>Remediation.</b> Publish /.well-known/security.txt with at least Contact and Expires fields (securitytxt.org can generate one).</p>
+      <p class="meta"> · evidence <code>ev_638d2dab7547</code></p>
+      <p class="meta"><a href="https://www.rfc-editor.org/rfc/rfc9116" rel="noreferrer">https://www.rfc-editor.org/rfc/rfc9116</a></p>
+    </article>
+    <article class="finding" id="f-10">
+      <h3><span class="sev sev-info">Info</span> 10. Permissions-Policy header is missing</h3>
+      <p class="meta"><code>web.headers.missing-permissions-policy</code> · https://dragonsmithers.com · confidence confirmed · status open · seen 1×</p>
+      <p>The response does not restrict powerful browser features. Without a policy, embedded third-party frames and compromised scripts can request camera, microphone, geolocation and similar access.</p>
+      <p><b>Impact.</b> Feature access is granted by default to any origin the page embeds, increasing blast radius.</p>
+      <table class="obs"><tr><th>permissions-policy</th><td><code>absent</code></td></tr></table>
+      <p><b>Remediation.</b> Set &#96;Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()&#96; and re-enable only the features the application actually uses.</p>
+      <p class="meta">CWE-693 · A05:2021 · evidence <code>ev_ecb255dc94f5</code></p>
+      <p class="meta"><a href="https://owasp.org/www-project-secure-headers/#permissions-policy" rel="noreferrer">https://owasp.org/www-project-secure-headers/#permissions-policy</a></p>
+    </article>
+
+<h2>Methodology</h2>
+<p>Safe mode: the full non-destructive check set was enabled — DNS records, TLS configuration, TCP service identification, HTTP security configuration and bounded content discovery.</p>
+<p><b>Scope enforcement.</b> Every network action was authorized against the engagement scope before it ran. Out-of-scope or excluded requests were refused and recorded in the audit log rather than retried elsewhere.</p><p><b>Reconnaissance.</b> DNS records, TLS configuration, exposed TCP services and (in scope) hostnames and endpoints were enumerated only for assets covered by the authorized scope.</p><p><b>Configuration review.</b> Responses were graded against the enabled check set: HTTP security headers, cookie attributes, CORS policy, allowed methods and other non-destructive configuration signals.</p><p><b>Evidence capture.</b> HTTP exchanges were stored as redacted, content-hashed evidence records. Findings reference those records by identifier; authorization headers, cookies and credential query parameters are redacted.</p><p><b>Analysis.</b> Findings were normalized against a fixed severity, confidence and proof-of-evidence vocabulary. Re-observations merge into the existing finding instead of creating duplicates.</p>
+
+<h2>Limitations</h2>
+<ul><li>Testing was non-destructive: no exploitation, brute force, fuzzing at volume, credential attack or denial-of-service activity was performed. The report therefore does not demonstrate exploitability.</li><li>Results reflect the state of the systems at the time of testing. Services, configuration and code change, so findings should be re-validated before remediation is considered complete.</li><li>Only assets explicitly covered by the authorized scope were tested. Any host, path or port outside that scope was not assessed and may hold undiscovered issues.</li><li>Absence of a finding is not proof that a vulnerability is absent. The checks are bounded by the recorded scope, request budget, timeouts and the enabled check set.</li></ul>
+
+<h2>Disclaimer</h2>
+<p class="meta">This report was produced by VANTAGE for the client named above under the authorization reference recorded in this document. It describes the state of the assessed systems at the time of testing and is limited to the scope, time window and check set recorded here. It is not a guarantee that the systems are free of vulnerabilities, and it does not constitute legal, compliance or certification advice. Distribution should be limited to parties authorized under the engagement.</p>
+</main></body></html>

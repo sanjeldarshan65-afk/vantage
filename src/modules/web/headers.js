@@ -116,7 +116,37 @@ const GRADEABLE_SOURCES = ['default-src', 'script-src', 'style-src', 'object-src
  * @param {{scheme?: string, url?: string, evidence?: string|string[]|null}} [options]
  * @returns {{findings: object[]}}
  */
-export function analyzeHeaders(headers, { scheme = 'https', url = '', evidence = null } = {}) {
+/**
+ * CSP delivered by `<meta http-equiv="Content-Security-Policy">`, if the page has one.
+ * Only the document head is searched, and only the first policy is returned.
+ * @param {string} html
+ * @returns {string|null}
+ */
+export function metaCspFromHtml(html) {
+  const head = String(html ?? '').slice(0, 65536);
+  for (const tag of head.match(/<meta\b[^>]*>/gi) ?? []) {
+    if (!/http-equiv\s*=\s*["']?content-security-policy["'\s>]/i.test(tag)) continue;
+    const content = /\bcontent\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(tag);
+    if (content) return (content[1] ?? content[2]).trim() || null;
+  }
+  return null;
+}
+
+/**
+ * Referrer policy from `<meta name="referrer">`, if present.
+ * @param {string} html
+ * @returns {string|null}
+ */
+export function metaReferrerFromHtml(html) {
+  for (const tag of String(html ?? '').slice(0, 65536).match(/<meta\b[^>]*>/gi) ?? []) {
+    if (!/\bname\s*=\s*["']?referrer["'\s>]/i.test(tag)) continue;
+    const content = /\bcontent\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(tag);
+    if (content) return (content[1] ?? content[2]).trim() || null;
+  }
+  return null;
+}
+
+export function analyzeHeaders(headers, { scheme = 'https', url = '', evidence = null, metaCsp = null, metaReferrer = null } = {}) {
   const h = normalizeHeaders(headers);
   const schemeName = String(scheme ?? '').toLowerCase();
   const htmlLike = isHtmlLike(h);
@@ -197,8 +227,26 @@ export function analyzeHeaders(headers, { scheme = 'https', url = '', evidence =
   }
 
   /* ------------------------------------------------------------- CSP / XFO */
-  const cspRaw = headerValue(h, 'content-security-policy');
+  const cspHeader = headerValue(h, 'content-security-policy');
+  // A <meta> policy enforces fetch directives, so grade it, but it cannot carry frame-ancestors,
+  // sandbox or reporting, so clickjacking protection still has to come from a header.
+  const cspRaw = cspHeader ?? (htmlLike ? metaCsp : null);
   if (htmlLike) {
+    if (!cspHeader && metaCsp) {
+      push('csp-meta-only', 'info', 'Content-Security-Policy is set with a meta tag only', {
+        description:
+          'The page declares its CSP in a <meta http-equiv> tag instead of a response header. Browsers enforce ' +
+          'its fetch directives, but ignore frame-ancestors, sandbox and report-uri/report-to in a meta policy.',
+        impact: 'Framing control and violation reporting are unavailable; the policy also only starts applying once the tag is parsed.',
+        remediation:
+          'Where the host allows it, send the policy as a Content-Security-Policy response header. On hosts that ' +
+          'cannot set headers (for example GitHub Pages), put the site behind a CDN that can, such as Cloudflare.',
+        observed: [{ key: 'meta content-security-policy', value: clip(metaCsp) }],
+        references: ['https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv'],
+        cwe: ['CWE-693'],
+        owasp: ['A05:2021']
+      });
+    }
     if (!cspRaw) {
       push('missing-csp', 'medium', 'Content-Security-Policy header is missing', {
         description:
@@ -303,9 +351,10 @@ export function analyzeHeaders(headers, { scheme = 'https', url = '', evidence =
     }
 
     /* ------------------------------------------------------- clickjacking */
-    const frameAncestors = cspRaw ? /\bframe-ancestors\b/i.test(cspRaw) : false;
+    // Only a header policy can carry frame-ancestors; a meta one is ignored for framing.
+    const frameAncestors = cspHeader ? /\bframe-ancestors\b/i.test(cspHeader) : false;
     const xfo = headerValue(h, 'x-frame-options');
-    if (!xfo && cspRaw && !frameAncestors) {
+    if (!xfo && !frameAncestors) {
       push('missing-frame-protection', 'medium', 'Response is not protected against clickjacking', {
         description:
           'Neither an `X-Frame-Options` header nor a CSP `frame-ancestors` directive is set, so the page can ' +
@@ -388,7 +437,8 @@ export function analyzeHeaders(headers, { scheme = 'https', url = '', evidence =
   }
 
   /* ----------------------------------------------------------- referrer */
-  const referrerPolicy = headerValue(h, 'referrer-policy');
+  // <meta name="referrer"> is honoured by browsers for the document, so it counts.
+  const referrerPolicy = headerValue(h, 'referrer-policy') ?? (htmlLike ? metaReferrer : null);
   if (!referrerPolicy) {
     push('missing-referrer-policy', 'low', 'Referrer-Policy header is missing', {
       description:
@@ -585,7 +635,9 @@ export default {
     const { findings } = analyzeHeaders(probe.headers, {
       scheme: probe.scheme,
       url: probe.url,
-      evidence: evidenceId
+      evidence: evidenceId,
+      metaCsp: metaCspFromHtml(probe.text),
+      metaReferrer: metaReferrerFromHtml(probe.text)
     });
     for (const finding of findings) await ctx.addFinding(finding);
     const headers = normalizeHeaders(probe.headers);

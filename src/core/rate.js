@@ -42,7 +42,8 @@ export class TokenBucket {
         this.timer = null;
         this.#drainWaiters();
       }, Math.max(5, Math.ceil(need * 1000)));
-      this.timer.unref?.();
+      // Not unref'd: this timer only exists while a caller waits, and it must keep the process
+      // alive. Unref'ing it made CLI runs against real (rate-limited) targets exit mid-run.
     }
   }
 

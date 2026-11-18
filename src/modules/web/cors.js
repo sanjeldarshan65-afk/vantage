@@ -183,7 +183,7 @@ export function analyzeCors(getRes, preflightRes, { origin = PROBE_ORIGIN, nullO
         owasp: ['A05:2021']
       });
     } else {
-      push('wildcard-origin', 'low', 'CORS wildcard origin policy is enabled', {
+      push('wildcard-origin', 'info', 'CORS wildcard origin policy is enabled', {
         evidence: withEvidence(wildcard),
         observed: [
           { key: 'access-control-allow-origin', value: '*' },

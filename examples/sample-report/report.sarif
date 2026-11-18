@@ -1,0 +1,508 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "VANTAGE",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/sanjeldarshan65-afk/vantage",
+          "rules": [
+            {
+              "id": "web.headers.missing-frame-protection",
+              "name": "webHeadersMissingFrameProtection",
+              "shortDescription": {
+                "text": "Response is not protected against clickjacking"
+              },
+              "fullDescription": {
+                "text": "Neither an `X-Frame-Options` header nor a CSP `frame-ancestors` directive is set, so the page can be embedded in a frame on any site."
+              },
+              "help": {
+                "text": "Set `Content-Security-Policy: frame-ancestors 'none'` (or `'self'` if framing is required). Keep `X-Frame-Options: DENY` as a fallback for older browsers."
+              },
+              "helpUri": "https://owasp.org/www-project-secure-headers/#x-frame-options",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-1021",
+                  "A05:2021"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "web.headers.missing-coop",
+              "name": "webHeadersMissingCoop",
+              "shortDescription": {
+                "text": "Cross-Origin-Opener-Policy (COOP) header is missing"
+              },
+              "fullDescription": {
+                "text": "The response does not set `Cross-Origin-Opener-Policy`, so a cross-origin window that opens this document keeps a reference to it."
+              },
+              "help": {
+                "text": "Set `Cross-Origin-Opener-Policy: same-origin` on HTML responses."
+              },
+              "helpUri": "https://owasp.org/www-project-secure-headers/#cross-origin-opener-policy",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-693",
+                  "A05:2021"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "web.headers.hsts-missing-include-subdomains",
+              "name": "webHeadersHstsMissingIncludeSubdomains",
+              "shortDescription": {
+                "text": "HSTS policy does not cover subdomains"
+              },
+              "fullDescription": {
+                "text": "The Strict-Transport-Security header does not include the `includeSubDomains` directive, so the policy only protects the exact host that sent it."
+              },
+              "help": {
+                "text": "Add `includeSubDomains` to the header once every subdomain serves HTTPS: `Strict-Transport-Security: max-age=31536000; includeSubDomains`."
+              },
+              "helpUri": "https://owasp.org/www-project-secure-headers/#strict-transport-security",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-319",
+                  "A02:2021"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "web.headers.missing-x-content-type-options",
+              "name": "webHeadersMissingXContentTypeOptions",
+              "shortDescription": {
+                "text": "X-Content-Type-Options header is missing"
+              },
+              "fullDescription": {
+                "text": "The response does not set `X-Content-Type-Options: nosniff`, so some browsers will sniff a body and execute it as a type the server did not declare."
+              },
+              "help": {
+                "text": "Set `X-Content-Type-Options: nosniff` on every response (it is cheap and safe to apply globally)."
+              },
+              "helpUri": "https://owasp.org/www-project-secure-headers/#x-content-type-options",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-16",
+                  "A05:2021"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "web.headers.csp-meta-only",
+              "name": "webHeadersCspMetaOnly",
+              "shortDescription": {
+                "text": "Content-Security-Policy is set with a meta tag only"
+              },
+              "fullDescription": {
+                "text": "The page declares its CSP in a <meta http-equiv> tag instead of a response header. Browsers enforce its fetch directives, but ignore frame-ancestors, sandbox and report-uri/report-to in a meta policy."
+              },
+              "help": {
+                "text": "Where the host allows it, send the policy as a Content-Security-Policy response header. On hosts that cannot set headers (for example GitHub Pages), put the site behind a CDN that can, such as Cloudflare."
+              },
+              "helpUri": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-693",
+                  "A05:2021"
+                ],
+                "security-severity": "0.0"
+              }
+            },
+            {
+              "id": "web.cors.wildcard-origin",
+              "name": "webCorsWildcardOrigin",
+              "shortDescription": {
+                "text": "CORS wildcard origin policy is enabled"
+              },
+              "fullDescription": {
+                "text": "The endpoint returns `Access-Control-Allow-Origin: *`, so any origin can read its responses. No credentials are shared, so this is only a problem if the response contains data that should not be world-readable."
+              },
+              "help": {
+                "text": "If the data is truly public this is acceptable — document it. Otherwise replace the wildcard with an exact origin allow-list and drop `Access-Control-Allow-Credentials` from responses that do not need it."
+              },
+              "helpUri": "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-942",
+                  "A05:2021"
+                ],
+                "security-severity": "0.0"
+              }
+            },
+            {
+              "id": "web.headers.missing-coep",
+              "name": "webHeadersMissingCoep",
+              "shortDescription": {
+                "text": "Cross-Origin-Embedder-Policy (COEP) header is missing"
+              },
+              "fullDescription": {
+                "text": "The response does not set `Cross-Origin-Embedder-Policy`. Without COEP the page is not cross-origin isolated, so powerful isolation-based mitigations are unavailable."
+              },
+              "help": {
+                "text": "Set `Cross-Origin-Embedder-Policy: require-corp` once embedded resources opt in via CORP."
+              },
+              "helpUri": "https://owasp.org/www-project-secure-headers/#cross-origin-embedder-policy",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-693",
+                  "A05:2021"
+                ],
+                "security-severity": "0.0"
+              }
+            },
+            {
+              "id": "web.headers.missing-corp",
+              "name": "webHeadersMissingCorp",
+              "shortDescription": {
+                "text": "Cross-Origin-Resource-Policy (CORP) header is missing"
+              },
+              "fullDescription": {
+                "text": "The response does not declare a `Cross-Origin-Resource-Policy`, so it can be embedded cross-origin."
+              },
+              "help": {
+                "text": "Set `Cross-Origin-Resource-Policy: same-origin` (or `same-site` where needed) on sensitive responses."
+              },
+              "helpUri": "https://owasp.org/www-project-secure-headers/#cross-origin-resource-policy",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-693",
+                  "A05:2021"
+                ],
+                "security-severity": "0.0"
+              }
+            },
+            {
+              "id": "web.securitytxt.missing",
+              "name": "webSecuritytxtMissing",
+              "shortDescription": {
+                "text": "No security.txt file"
+              },
+              "fullDescription": {
+                "text": "There is no /.well-known/security.txt telling researchers how to report a vulnerability."
+              },
+              "help": {
+                "text": "Publish /.well-known/security.txt with at least Contact and Expires fields (securitytxt.org can generate one)."
+              },
+              "helpUri": "https://www.rfc-editor.org/rfc/rfc9116",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "0.0"
+              }
+            },
+            {
+              "id": "web.headers.missing-permissions-policy",
+              "name": "webHeadersMissingPermissionsPolicy",
+              "shortDescription": {
+                "text": "Permissions-Policy header is missing"
+              },
+              "fullDescription": {
+                "text": "The response does not restrict powerful browser features. Without a policy, embedded third-party frames and compromised scripts can request camera, microphone, geolocation and similar access."
+              },
+              "help": {
+                "text": "Set `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()` and re-enable only the features the application actually uses."
+              },
+              "helpUri": "https://owasp.org/www-project-secure-headers/#permissions-policy",
+              "properties": {
+                "tags": [
+                  "security",
+                  "CWE-693",
+                  "A05:2021"
+                ],
+                "security-severity": "0.0"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "web.headers.missing-frame-protection",
+          "level": "warning",
+          "message": {
+            "text": "Response is not protected against clickjacking. Set `Content-Security-Policy: frame-ancestors 'none'` (or `'self'` if framing is required). Keep `X-Frame-Options: DENY` as a fallback for older browsers."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_be9e70607697"
+          },
+          "properties": {
+            "severity": "medium",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_ecb255dc94f5"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.headers.missing-coop",
+          "level": "note",
+          "message": {
+            "text": "Cross-Origin-Opener-Policy (COOP) header is missing. Set `Cross-Origin-Opener-Policy: same-origin` on HTML responses."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_8b90ffe47510"
+          },
+          "properties": {
+            "severity": "low",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_ecb255dc94f5"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.headers.hsts-missing-include-subdomains",
+          "level": "note",
+          "message": {
+            "text": "HSTS policy does not cover subdomains. Add `includeSubDomains` to the header once every subdomain serves HTTPS: `Strict-Transport-Security: max-age=31536000; includeSubDomains`."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_3be797923562"
+          },
+          "properties": {
+            "severity": "low",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_ecb255dc94f5"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.headers.missing-x-content-type-options",
+          "level": "note",
+          "message": {
+            "text": "X-Content-Type-Options header is missing. Set `X-Content-Type-Options: nosniff` on every response (it is cheap and safe to apply globally)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_cec97186e43e"
+          },
+          "properties": {
+            "severity": "low",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_ecb255dc94f5"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.headers.csp-meta-only",
+          "level": "note",
+          "message": {
+            "text": "Content-Security-Policy is set with a meta tag only. Where the host allows it, send the policy as a Content-Security-Policy response header. On hosts that cannot set headers (for example GitHub Pages), put the site behind a CDN that can, such as Cloudflare."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_d4f63cf97dc8"
+          },
+          "properties": {
+            "severity": "info",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_ecb255dc94f5"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.cors.wildcard-origin",
+          "level": "note",
+          "message": {
+            "text": "CORS wildcard origin policy is enabled. If the data is truly public this is acceptable — document it. Otherwise replace the wildcard with an exact origin allow-list and drop `Access-Control-Allow-Credentials` from responses that do not need it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_610e443a77af"
+          },
+          "properties": {
+            "severity": "info",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_92892c4570f3",
+              "ev_ba08e8a9fe82"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.headers.missing-coep",
+          "level": "note",
+          "message": {
+            "text": "Cross-Origin-Embedder-Policy (COEP) header is missing. Set `Cross-Origin-Embedder-Policy: require-corp` once embedded resources opt in via CORP."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_74172d2c237d"
+          },
+          "properties": {
+            "severity": "info",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_ecb255dc94f5"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.headers.missing-corp",
+          "level": "note",
+          "message": {
+            "text": "Cross-Origin-Resource-Policy (CORP) header is missing. Set `Cross-Origin-Resource-Policy: same-origin` (or `same-site` where needed) on sensitive responses."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_d873e3243627"
+          },
+          "properties": {
+            "severity": "info",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_ecb255dc94f5"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.securitytxt.missing",
+          "level": "note",
+          "message": {
+            "text": "No security.txt file. Publish /.well-known/security.txt with at least Contact and Expires fields (securitytxt.org can generate one)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com/.well-known/security.txt"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_d4a1c620c069"
+          },
+          "properties": {
+            "severity": "info",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_638d2dab7547"
+            ]
+          }
+        },
+        {
+          "ruleId": "web.headers.missing-permissions-policy",
+          "level": "note",
+          "message": {
+            "text": "Permissions-Policy header is missing. Set `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()` and re-enable only the features the application actually uses."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://dragonsmithers.com"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "vantageFinding": "fnd_25146599f71e"
+          },
+          "properties": {
+            "severity": "info",
+            "confidence": "confirmed",
+            "status": "open",
+            "evidence": [
+              "ev_ecb255dc94f5"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

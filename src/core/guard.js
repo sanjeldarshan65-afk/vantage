@@ -14,6 +14,20 @@ const ALLOWED_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'TRACE']);
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
 /**
+ * Owner domain of a DNS policy name: everything after the last underscore label.
+ * `_dmarc.acme.example` and `s1._domainkey.acme.example` -> `acme.example`; ordinary names -> null.
+ * @param {string} host
+ * @returns {string|null}
+ */
+export function dnsPolicyOwner(host) {
+  const labels = String(host ?? '').toLowerCase().replace(/\.$/, '').split('.');
+  let last = -1;
+  labels.forEach((label, i) => { if (label.startsWith('_')) last = i; });
+  const owner = labels.slice(last + 1);
+  return last >= 0 && owner.length >= 2 ? owner.join('.') : null;
+}
+
+/**
  * The single choke point for every outbound action.
  *
  * Responsibilities: scope enforcement (including redirect hops and DNS-resolved IPs),
@@ -79,6 +93,13 @@ export class ScopeGuard {
     }
 
     let verdict = this.scope.matchHost(host, { port, scheme, resolvedIps: [] });
+    // DNS policy records (_dmarc, sel._domainkey, _mta-sts...) belong to the domain that owns
+    // them. A DNS-only lookup is judged against that owner; HTTP/TCP to the name stays strict.
+    const owner = kind === 'dns' ? dnsPolicyOwner(host) : null;
+    if (!verdict.allowed && owner) {
+      const ownerVerdict = this.scope.matchHost(owner, { port: null, scheme: null, resolvedIps: [] });
+      if (ownerVerdict.allowed) verdict = { ...ownerVerdict, host, reason: `DNS policy record of in-scope ${owner} (${ownerVerdict.reason})` };
+    }
     if (!verdict.allowed && !isIP(host)) {
       const ips = await this.#resolvedIps(host);
       if (ips.length > 0) verdict = this.scope.matchHost(host, { port, scheme, resolvedIps: ips });

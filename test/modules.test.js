@@ -69,3 +69,34 @@ test('ports: risky services are classified, others are not', () => {
   assert.equal(classifyPort(2375).severity, 'critical');
   assert.equal(classifyPort(443), null);
 });
+
+test('headers: meta CSP counts for fetch directives but not for framing', async () => {
+  const { analyzeHeaders, metaCspFromHtml } = await import('../src/modules/web/headers.js');
+  const html = { 'content-type': 'text/html' };
+  const meta = metaCspFromHtml(`<head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'"></head>`);
+  assert.equal(meta, "default-src 'self'");
+  assert.equal(metaCspFromHtml('<meta name="viewport" content="x">'), null);
+
+  const withMeta = analyzeHeaders(html, { url: 'https://a.example/', metaCsp: meta }).findings.map((f) => f.check);
+  assert.ok(!withMeta.includes('web.headers.missing-csp'), 'meta CSP is not "missing"');
+  assert.ok(withMeta.includes('web.headers.csp-meta-only'));
+  assert.ok(withMeta.includes('web.headers.missing-frame-protection'), 'meta CSP cannot stop framing');
+
+  const none = analyzeHeaders(html, { url: 'https://a.example/' }).findings.map((f) => f.check);
+  assert.ok(none.includes('web.headers.missing-csp'));
+  assert.ok(none.includes('web.headers.missing-frame-protection'), 'no CSP and no XFO is clickjackable (was a false negative)');
+
+  const protectedPage = analyzeHeaders({ ...html, 'content-security-policy': "default-src 'self'; frame-ancestors 'none'" }, { url: 'https://a.example/' }).findings.map((f) => f.check);
+  assert.ok(!protectedPage.includes('web.headers.missing-frame-protection'));
+});
+
+test('headers: meta referrer policy counts, unsafe values still flagged', async () => {
+  const { analyzeHeaders, metaReferrerFromHtml } = await import('../src/modules/web/headers.js');
+  const html = { 'content-type': 'text/html' };
+  const meta = metaReferrerFromHtml('<meta name="referrer" content="strict-origin-when-cross-origin">');
+  assert.equal(meta, 'strict-origin-when-cross-origin');
+  const ok = analyzeHeaders(html, { url: 'https://a.example/', metaReferrer: meta }).findings.map((f) => f.check);
+  assert.ok(!ok.includes('web.headers.missing-referrer-policy'));
+  const bad = analyzeHeaders(html, { url: 'https://a.example/', metaReferrer: 'unsafe-url' }).findings.map((f) => f.check);
+  assert.ok(bad.includes('web.headers.unsafe-referrer-policy'));
+});

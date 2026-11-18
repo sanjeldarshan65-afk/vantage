@@ -13,6 +13,11 @@ A security assessment workbench for systems **you own or have written permission
 - **Evidence or it didn't happen.** Each finding links to redacted request/response captures. Cookies and auth headers are scrubbed, and secret-looking values in bodies (`.env` lines, private keys) are masked before anything is written to disk.
 - **The dashboard binds to 127.0.0.1 only.** Changing a finding's status requires the token printed at startup.
 
+## Proof it works on a real site
+
+- [**Sample report**](https://htmlpreview.github.io/?https://github.com/sanjeldarshan65-afk/vantage/blob/main/examples/sample-report/report.html): an assessment of my own site, [dragonsmithers.com](https://dragonsmithers.com).
+- [**Validation write-up**](docs/validation.md): every finding cross-checked against Mozilla HTTP Observatory. That check caught two false positives and a missed clickjacking issue, all now fixed with regression tests.
+
 ## Quick start
 
 Requires Node 22 or newer. There are no dependencies to install.
@@ -83,7 +88,7 @@ Each report has an executive summary with a risk rating, a severity table, scope
 ## Development
 
 ```
-npm test        # 83 tests, all on loopback, no internet needed
+npm test        # 88 tests, all on loopback, no internet needed
 npm run smoke   # import/instantiation smoke test
 ```
 
