@@ -2,7 +2,7 @@
 
 A security assessment workbench for systems **you own or have written permission to test**. It runs DNS, email and web configuration checks, captures evidence for every finding, writes client-ready reports, and shows progress live in a local dashboard.
 
-![Dashboard showing a demo engagement: 12 open findings, a severity chart, and a findings table](docs/dashboard.jpg)
+![Dashboard for a demo engagement: the authorization card with reference, window, scope and mode, then 12 open findings, a severity chart and report links](docs/dashboard.jpg)
 
 ## Safety model
 

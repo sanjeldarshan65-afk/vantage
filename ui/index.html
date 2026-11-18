@@ -1,83 +1,56 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="description" content="VANTAGE — authorized security assessment workbench dashboard. Loopback only." />
-    <title>VANTAGE — assessment console</title>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23090c11'/%3E%3Cpath d='M12 4l7 5-7 11-7-11 7-5z' fill='none' stroke='%233ddc97' stroke-width='1.6'/%3E%3C/svg%3E"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a222b" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="VANTAGE assessment console, served on this machine only." />
+    <title>VANTAGE console</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3l9 16H3z' fill='none' stroke='%231d5c8a' stroke-width='2' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='14' r='2' fill='%231d5c8a'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="topbar">
-      <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-          <path d="M12 2.5l8.5 6L12 21.5 3.5 8.5 12 2.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-          <path d="M12 7.5l4.4 3.1L12 16.4l-4.4-5.8L12 7.5z" fill="currentColor" opacity="0.28" />
-        </svg>
-        <span class="brand-name">VANTAGE</span>
-        <span class="brand-sub">assessment console</span>
-      </div>
+      <a class="brand" href="#/" translate="no">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l9 16H3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><circle cx="12" cy="14" r="2" fill="currentColor" /></svg>
+        VANTAGE
+      </a>
       <div class="topbar-actions">
-        <span id="live-pill" class="pill pill--offline" role="status" aria-live="polite" title="Live progress stream">
-          <span class="pill-dot" aria-hidden="true"></span>
-          <span id="live-label">offline</span>
-        </span>
-        <button
-          id="token-button"
-          class="btn btn--ghost"
-          type="button"
-          aria-haspopup="dialog"
-          aria-label="Set operator token for mutating actions"
-        >
-          <span id="token-state" class="token-state" aria-hidden="true"></span>
-          <span>token</span>
-        </button>
+        <span id="live" class="live" data-state="offline" role="status" aria-live="polite">Offline</span>
+        <button id="token-button" class="btn btn--sm" type="button" aria-haspopup="dialog">Set token</button>
       </div>
     </header>
 
     <main id="main" class="app" tabindex="-1">
-      <div id="view" class="view" aria-live="polite"></div>
+      <div id="view"><p class="loading">Loading…</p></div>
     </main>
 
     <footer class="footer">
-      <span>VANTAGE · authorized-scope-gated assessment workbench</span>
-      <span class="mono">127.0.0.1 only</span>
-      <span>all actions recorded in the engagement audit trail</span>
+      Served on 127.0.0.1 only. Every network action is recorded in the engagement’s audit log.
     </footer>
 
-    <div id="drawer-root"></div>
-    <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="false"></div>
+    <dialog id="drawer" class="drawer" aria-labelledby="drawer-title"></dialog>
 
-    <dialog id="token-dialog" class="dialog" aria-labelledby="token-dialog-title">
-      <form id="token-form" class="dialog-body" novalidate>
-        <h2 id="token-dialog-title">Operator token</h2>
-        <p>
-          Changing finding status writes to the engagement store. Paste the token printed when the
-          dashboard server starts. It is kept in this tab's session storage only.
-        </p>
-        <label for="token-input">x-vantage-token</label>
-        <input
-          id="token-input"
-          name="token"
-          type="password"
-          autocomplete="off"
-          spellcheck="false"
-          placeholder="paste operator token"
-        />
+    <dialog id="token-dialog" aria-labelledby="token-title">
+      <form id="token-form" class="dialog-body" method="dialog">
+        <h2 id="token-title">Operator token</h2>
+        <p>Changing a finding’s status needs the token the server printed when it started. It stays in this tab only.</p>
+        <label class="field" for="token-input">Token
+          <input id="token-input" name="token" type="password" autocomplete="off" spellcheck="false" placeholder="Paste the token…" />
+        </label>
         <div class="dialog-actions">
-          <button id="token-clear" class="btn btn--ghost" type="button">Clear token</button>
-          <button id="token-cancel" class="btn btn--ghost" type="button">Cancel</button>
+          <button id="token-clear" class="btn" type="button">Clear token</button>
+          <button class="btn" type="button" data-close>Cancel</button>
           <button class="btn btn--primary" type="submit">Save token</button>
         </div>
       </form>
     </dialog>
+
+    <div id="toasts" class="toasts" aria-live="polite"></div>
 
     <script type="module" src="./app.js"></script>
   </body>
