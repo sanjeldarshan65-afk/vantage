@@ -10,7 +10,10 @@ const drawer = $('#drawer');
 const esc = (v) => String(v ?? '').replace(/[&<>"'`]/g, (c) => `&#${c.charCodeAt(0)};`);
 const human = (s) => String(s ?? '').replace(/_/g, ' ');
 const dateFmt = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
-const when = (iso) => (iso ? dateFmt.format(new Date(iso)) : 'not set');
+const when = (iso) => {
+  const d = iso ? new Date(iso) : null;
+  return d && !Number.isNaN(d.getTime()) ? dateFmt.format(d) : 'not set'; // one bad date must not break a page
+};
 const num = new Intl.NumberFormat();
 const enc = encodeURIComponent;
 

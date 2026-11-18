@@ -66,19 +66,21 @@ export function renderHtml(r) {
 
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=IBM+Plex+Mono&display=swap">
 <title>${e(g.name)} — VANTAGE assessment report</title>
 <style>
-:root{--bg:#fff;--fg:#14171c;--muted:#5b6472;--line:#dde1e7;--critical:#b0172b;--high:#d4471b;--medium:#b07d00;--low:#2a6fb0;--info:#5b6472}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+:root{color-scheme:dark;--bg:#0a0607;--panel:#140c0d;--fg:#f1e9e6;--muted:#b3a5a1;--line:#2a1719;--link:#ff6b4a;--ember:#e5392c;--critical:#c81e34;--high:#c2521c;--medium:#9a7400;--low:#2f69ad;--info:#6f6360}
+body{margin:0;background:radial-gradient(60rem 40rem at 75% -10%,rgba(179,32,26,.28),transparent 70%) var(--bg);color:var(--fg);font:15px/1.6 Archivo,system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:var(--link)}h1{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1.05;text-wrap:balance}h2,h3{text-wrap:balance}
 main{max-width:900px;margin:0 auto;padding:32px 16px}
 h1{margin:0 0 4px}h2{border-bottom:1px solid var(--line);padding-bottom:4px;margin-top:36px}
-.meta{color:var(--muted);font-size:13px}code{font:12px ui-monospace,Consolas,monospace;word-break:break-all}
+.meta{color:var(--muted);font-size:13px}code{font:12px "IBM Plex Mono",ui-monospace,Consolas,monospace;word-break:break-all}
 table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
 .sev{display:inline-block;padding:1px 8px;border-radius:999px;color:#fff;font-size:12px;font-weight:600}
 ${SEVERITY_ORDER.map((s) => `.sev-${s}{background:var(--${s})}`).join('')}
 .finding{border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:16px 0}.finding h3{margin:0 0 4px}
-.auth{background:#f4f6f9;border:1px solid var(--line);border-radius:8px;padding:12px 16px}
-@media print{.finding{break-inside:avoid}}
+.finding,.auth{background:var(--panel)}.auth{border:1px solid var(--line);border-left:4px solid var(--ember);border-radius:8px;padding:12px 16px}
+@media print{:root{color-scheme:light;--bg:#fff;--panel:#fff;--fg:#14171c;--muted:#5b6472;--line:#dde1e7;--link:#b3201a}body{background:#fff}.finding{break-inside:avoid}}
 </style></head><body><main>
 <h1>${e(g.name)}</h1>
 <p class="meta">Security assessment report · ${e(g.client || 'client not recorded')} · generated ${e(formatDate(r.generatedAt))} · ${e(r.tool.name)} ${e(r.tool.version)}</p>

@@ -28,6 +28,9 @@ test('demo: lab target -> engine -> findings -> reports', async () => {
       assert.ok(checks.some((c) => c.startsWith(expected)), `expected a ${expected} finding, got ${checks}`);
     }
     assert.ok(store.listFindings().every((f) => f.evidence.length > 0), 'every finding links evidence');
+    await store.flush();
+    const [summary] = await EngagementStore.list({ engagementsRoot: root });
+    assert.equal(summary.lastRunAt, run.startedAt, 'lastRunAt is the run start time, not a run id');
 
     const built = await buildReport(store);
     assert.match(built.html, /CORS reflects an arbitrary origin/);

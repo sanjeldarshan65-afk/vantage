@@ -156,7 +156,12 @@ export class EngagementStore {
         findings: findings.length,
         assets: assets.length,
         runs: runs.length,
-        lastRunAt: runs.length ? runs.sort().at(-1).replace(/\.json$/, '') : null
+        // Run ids are random, so the newest run comes from its startedAt, not its file name.
+        lastRunAt: (await Promise.all(runs.map((name) => readJson(path.join(dir, FILES.runs, name), null))))
+          .map((run) => run?.startedAt)
+          .filter((ts) => typeof ts === 'string' && !Number.isNaN(Date.parse(ts)))
+          .sort()
+          .at(-1) ?? null
       });
     }
     return summaries.sort((a, b) => String(b.lastRunAt ?? '').localeCompare(String(a.lastRunAt ?? '')));

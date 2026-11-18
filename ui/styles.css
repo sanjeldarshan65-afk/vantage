@@ -1,65 +1,48 @@
-/* VANTAGE dashboard. One accent (survey blue); severity colours carry the data.
-   System fonts on purpose: a loopback security tool makes no third-party requests. */
+/* VANTAGE dashboard. Same theme as the MVT Timeline Viewer and dragonsmithers.com:
+   ember on near-black, Archivo + IBM Plex Mono. Severity colours carry the data. */
 
 :root {
-  color-scheme: light dark;
-  --paper: #eef1f4;
-  --surface: #ffffff;
-  --sunk: #f5f7f9;
-  --ink: #17212c;
-  --muted: #566270;
-  --line: #d3dae2;
-  --line-strong: #b4bec9;
-  --accent: #1d5c8a;
-  --accent-ink: #ffffff;
-  --accent-soft: #e3edf5;
-  --critical: #a3122a;
-  --high: #b9440c;
-  --medium: #8a6400;
-  --low: #2b62a3;
-  --info: #5f6976;
-  --ok: #1f7a4d;
-  --on-critical: #ffffff;
-  --scrim: rgb(10 16 22 / 0.5);
-  --shadow: 0 1px 2px rgb(23 33 44 / 0.06), 0 4px 16px rgb(23 33 44 / 0.06);
+  color-scheme: dark;
+  --paper: #0a0607;
+  --surface: #140c0d;
+  --sunk: #0f0909;
+  --ink: #f1e9e6;
+  --muted: #b3a5a1;
+  --line: #2a1719;
+  --line-strong: #7a5658;
+  --accent: #ff6b4a;          /* copper: links, focus, active tab */
+  --fire: #b3201a;            /* primary buttons */
+  --fire-hover: #c8261e;
+  --on-fire: #fff6f3;
+  --ember: #e5392c;
+  --accent-soft: rgba(229, 57, 44, 0.12);
+  --head-glow: rgba(179, 32, 26, 0.28);
+  --critical: #ff5468;
+  --high: #ff8a4c;
+  --medium: #f2c14e;
+  --low: #7fb0ec;
+  --info: #a89a96;
+  --ok: #5cc48f;
+  --on-critical: #1a0708;
+  --scrim: rgba(5, 2, 3, 0.7);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.4);
   --r-sm: 6px;
   --r: 10px;
   --r-lg: 14px;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
-  --ease: cubic-bezier(0.2, 0, 0, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #12181f;
-    --surface: #1a222b;
-    --sunk: #151c24;
-    --ink: #e6ebf0;
-    --muted: #9eabb8;
-    --line: #2c3743;
-    --line-strong: #3d4a57;
-    --accent: #7db4e0;
-    --accent-ink: #0d1620;
-    --accent-soft: #1c2f40;
-    --critical: #f0687c;
-    --high: #f08a52;
-    --medium: #e0b84a;
-    --low: #7fb0ec;
-    --info: #9aa5b1;
-    --ok: #5cc48f;
-    --on-critical: #1a0d10;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
-  }
+  --sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * { box-sizing: border-box; }
 html, body { overflow-x: clip; }
 body {
   margin: 0;
-  background: var(--paper);
+  background: radial-gradient(60rem 40rem at 75% -10%, var(--head-glow), transparent 70%) var(--paper);
+  background-attachment: fixed;
+  min-height: 100vh;
   color: var(--ink);
-  font: 15px/1.5 var(--sans);
+  font: 400 15px/1.6 var(--sans);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -70,6 +53,7 @@ code, .mono { font-family: var(--mono); font-size: 0.86em; overflow-wrap: anywhe
 button, select, input, textarea { font: inherit; color: inherit; touch-action: manipulation; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 [hidden] { display: none !important; }
+#main:focus { outline: none; } /* programmatic focus target after navigation, not a control */
 
 .skip-link { position: absolute; left: 8px; top: -48px; padding: 8px 12px; background: var(--surface); border-radius: var(--r-sm); z-index: 10; }
 .skip-link:focus { top: 8px; }
@@ -80,11 +64,11 @@ button, select, input, textarea { font: inherit; color: inherit; touch-action: m
   position: sticky; top: 0; z-index: 5;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 8px max(16px, env(safe-area-inset-left));
-  background: var(--surface);
+  background: var(--paper);
   border-bottom: 1px solid var(--line);
 }
-.brand { display: flex; align-items: center; gap: 8px; font-weight: 650; letter-spacing: 0.02em; text-decoration: none; color: var(--ink); min-height: 44px; }
-.brand svg { width: 20px; height: 20px; color: var(--accent); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.01em; text-decoration: none; color: var(--ink); min-height: 44px; }
+.brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ember); box-shadow: 0 0 12px var(--ember); }
 .topbar-actions { display: flex; align-items: center; gap: 8px; }
 .live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
 .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
@@ -107,8 +91,8 @@ button, select, input, textarea { font: inherit; color: inherit; touch-action: m
 .btn:hover { background: var(--sunk); border-color: var(--muted); }
 .btn:active { scale: 0.96; }
 .btn:disabled { background: var(--sunk); border-color: var(--line); color: var(--muted); cursor: progress; scale: 1; }
-.btn--primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn--primary:hover { background: var(--accent); filter: brightness(1.08); }
+.btn--primary { background: var(--fire); border-color: var(--fire); color: var(--on-fire); }
+.btn--primary:hover { background: var(--fire-hover); border-color: var(--fire-hover); }
 .btn--sm { min-height: 32px; padding: 0 12px; font-size: 13px; position: relative; }
 .btn--sm::after { content: ""; position: absolute; inset: -6px; } /* 44px hit area */
 .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -124,7 +108,7 @@ textarea { width: 100%; resize: vertical; }
 /* ---------- page parts ---------- */
 
 .back { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
-.page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+.page-title { font-size: clamp(28px, 5vw, 44px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
 .page-sub { margin-top: 4px; color: var(--muted); }
 .head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin-bottom: 16px; }
 
@@ -141,13 +125,13 @@ textarea { width: 100%; resize: vertical; }
   border-radius: var(--r-lg);
   overflow: hidden;
 }
-.permit::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; background: repeating-linear-gradient(-45deg, var(--accent) 0 6px, transparent 6px 12px); }
+.permit::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; background: repeating-linear-gradient(-45deg, var(--ember) 0 6px, transparent 6px 12px); }
 .permit-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 4px 16px; align-items: baseline; }
 .permit-key { color: var(--muted); font-size: 13px; }
 .permit-ref { font-size: 17px; font-weight: 650; }
 .window { display: grid; gap: 6px; }
 .window-bar { height: 6px; border-radius: 3px; background: var(--sunk); border: 1px solid var(--line); overflow: hidden; }
-.window-fill { display: block; height: 100%; background: var(--accent); }
+.window-fill { display: block; height: 100%; background: var(--ember); }
 .window-fill[data-state="expired"] { background: var(--critical); }
 .targets { display: flex; flex-wrap: wrap; gap: 6px; }
 .target { padding: 2px 8px; border-radius: var(--r-sm); background: var(--accent-soft); font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
