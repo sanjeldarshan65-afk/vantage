@@ -100,3 +100,21 @@ test('headers: meta referrer policy counts, unsafe values still flagged', async 
   const bad = analyzeHeaders(html, { url: 'https://a.example/', metaReferrer: 'unsafe-url' }).findings.map((f) => f.check);
   assert.ok(bad.includes('web.headers.unsafe-referrer-policy'));
 });
+
+test('headers: SRI only flags cross-origin scripts and stylesheets without integrity', async () => {
+  const { analyzeSubresourceIntegrity } = await import('../src/modules/web/headers.js');
+  const page = 'https://a.example/';
+  const html = [
+    '<script src="/app.js"></script>',
+    '<script src="https://cdn.example/lib.js" integrity="sha384-x" crossorigin="anonymous"></script>',
+    '<script src="https://cdn.example/bad.js"></script>',
+    '<link rel="stylesheet" href="https://fonts.example/f.css">',
+    '<link rel="icon" href="https://cdn.example/i.png">'
+  ].join('\n');
+  const f = analyzeSubresourceIntegrity(html, { url: page });
+  assert.equal(f.check, 'web.headers.missing-sri');
+  assert.match(f.observed[0].value, /bad\.js/);
+  assert.match(f.observed[0].value, /f\.css/);
+  assert.doesNotMatch(f.observed[0].value, /lib\.js|app\.js|i\.png/);
+  assert.equal(analyzeSubresourceIntegrity('<script src="/x.js"></script>', { url: page }), null);
+});

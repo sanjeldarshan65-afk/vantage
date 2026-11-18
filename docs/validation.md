@@ -32,11 +32,10 @@ Two more bugs surfaced on the way, and only a real remote target could expose th
 | COOP / CORP / COEP | low / info: missing | 0-point results | Yes (informational) |
 | CORS `Access-Control-Allow-Origin: *` | info | not scored | Yes, after downgrading from *low* (public static content) |
 | security.txt | info: missing | not checked | VANTAGE only |
-| Subresource Integrity | not checked | fail (0 points) | Gap in VANTAGE |
+| Subresource Integrity | no finding: only same-origin `/site.js` | 0 points: all scripts from a secure origin | Yes (check added after the first comparison) |
 | HTTP → HTTPS redirect | not verified: port 80 was out of scope | pass | Scope choice, not a miss |
 
 ## Known gaps
 
-- **No Subresource Integrity check yet.** Observatory has one.
 - **Legacy TLS** (1.0/1.1) detection relies on the local OpenSSL being willing to offer those versions. It can miss a server that accepts them, but it can't falsely report one.
 - **The HTTP→HTTPS redirect check** needs `http://` or the bare host in scope. A single `https://` origin deliberately excludes port 80.

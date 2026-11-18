@@ -146,6 +146,42 @@ export function metaReferrerFromHtml(html) {
   return null;
 }
 
+/**
+ * Cross-origin scripts and stylesheets loaded without an `integrity` attribute.
+ * Same-origin resources are skipped: SRI only protects against a compromised third party.
+ * @returns {object|null} one finding listing every unprotected resource
+ */
+export function analyzeSubresourceIntegrity(html, { url = '', evidence = null } = {}) {
+  let page;
+  try { page = new URL(url); } catch { return null; }
+  const unprotected = [];
+  for (const tag of String(html ?? '').match(/<(?:script|link)\b[^>]*>/gi) ?? []) {
+    const isScript = /^<script/i.test(tag);
+    if (!isScript && !/\brel\s*=\s*["']?[^"'>]*\bstylesheet\b/i.test(tag)) continue;
+    const ref = (isScript ? /\bsrc\s*=\s*["']?([^"'\s>]+)/i : /\bhref\s*=\s*["']?([^"'\s>]+)/i).exec(tag)?.[1];
+    if (!ref || /\bintegrity\s*=/i.test(tag)) continue;
+    let resource;
+    try { resource = new URL(ref, page); } catch { continue; }
+    if (resource.origin !== page.origin && /^https?:$/.test(resource.protocol)) unprotected.push(resource.href);
+  }
+  if (unprotected.length === 0) return null;
+  return {
+    check: 'web.headers.missing-sri',
+    title: 'Third-party scripts or stylesheets load without Subresource Integrity',
+    severity: 'low',
+    confidence: 'confirmed',
+    target: url,
+    evidence: evidence ? [evidence] : [],
+    description: `${unprotected.length} cross-origin resource(s) are loaded without an \`integrity\` hash, so the page runs whatever the third party serves.`,
+    impact: 'If that CDN or host is compromised, the attacker\'s code runs on this page with full access to it.',
+    remediation: 'Add `integrity="sha384-..."` and `crossorigin="anonymous"` to pinned third-party resources, or self-host them. Resources that change by design (analytics loaders) cannot be pinned; accept or self-host them.',
+    observed: [{ key: 'resources', value: clip(unprotected.join(', ')) }],
+    references: ['https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity'],
+    cwe: ['CWE-353', 'CWE-829'],
+    owasp: ['A08:2021']
+  };
+}
+
 export function analyzeHeaders(headers, { scheme = 'https', url = '', evidence = null, metaCsp = null, metaReferrer = null } = {}) {
   const h = normalizeHeaders(headers);
   const schemeName = String(scheme ?? '').toLowerCase();
@@ -640,6 +676,8 @@ export default {
       metaReferrer: metaReferrerFromHtml(probe.text)
     });
     for (const finding of findings) await ctx.addFinding(finding);
+    const sri = analyzeSubresourceIntegrity(probe.text, { url: probe.url, evidence: evidenceId });
+    if (sri) await ctx.addFinding(sri);
     const headers = normalizeHeaders(probe.headers);
     await ctx.addAsset({
       type: 'endpoint',

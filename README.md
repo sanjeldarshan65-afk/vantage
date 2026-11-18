@@ -16,6 +16,7 @@ A security assessment workbench for systems **you own or have written permission
 ## Proof it works on a real site
 
 - [**Sample report**](https://htmlpreview.github.io/?https://github.com/sanjeldarshan65-afk/vantage/blob/main/examples/sample-report/report.html): an assessment of my own site, [dragonsmithers.com](https://dragonsmithers.com).
+- [**Architecture**](docs/architecture.md): how the scope guard makes every request go through one choke point, and how to write a check module.
 - [**Validation write-up**](docs/validation.md): every finding cross-checked against Mozilla HTTP Observatory. That check caught two false positives and a missed clickjacking issue, all now fixed with regression tests.
 
 ## Quick start
@@ -63,7 +64,7 @@ Edit `data/engagements/<id>/engagement.json` to set exclusions, port policy and 
 | `recon.email` | SPF, DMARC, and DKIM selector presence |
 | `recon.subdomains` | Short in-scope subdomain wordlist, resolved through the guard |
 | `recon.ports` | TCP connect scan of about 100 common ports the scope allows; flags exposed databases, remote desktops and the Docker API |
-| `web.headers` | HSTS, CSP, framing, MIME sniffing, COOP/COEP/CORP, version disclosure |
+| `web.headers` | HSTS, CSP, framing, MIME sniffing, COOP/COEP/CORP, version disclosure, Subresource Integrity on third-party scripts (meta-tag CSP and referrer policies count) |
 | `web.cookies` | Secure, HttpOnly, SameSite, prefixes, overly broad domain |
 | `web.cors` | Reflected origins, `null` origin, credentials with wildcards |
 | `web.tls` | Plain HTTP; certificate expiry, trust, hostname match, self-signed and key size; TLS 1.0/1.1 still accepted |
@@ -88,7 +89,7 @@ Each report has an executive summary with a risk rating, a severity table, scope
 ## Development
 
 ```
-npm test        # 88 tests, all on loopback, no internet needed
+npm test        # 89 tests, all on loopback, no internet needed
 npm run smoke   # import/instantiation smoke test
 ```
 
