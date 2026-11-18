@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="VANTAGE — authorized security assessment workbench dashboard. Loopback only." />
+    <title>VANTAGE — assessment console</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23090c11'/%3E%3Cpath d='M12 4l7 5-7 11-7-11 7-5z' fill='none' stroke='%233ddc97' stroke-width='1.6'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <path d="M12 2.5l8.5 6L12 21.5 3.5 8.5 12 2.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M12 7.5l4.4 3.1L12 16.4l-4.4-5.8L12 7.5z" fill="currentColor" opacity="0.28" />
+        </svg>
+        <span class="brand-name">VANTAGE</span>
+        <span class="brand-sub">assessment console</span>
+      </div>
+      <div class="topbar-actions">
+        <span id="live-pill" class="pill pill--offline" role="status" aria-live="polite" title="Live progress stream">
+          <span class="pill-dot" aria-hidden="true"></span>
+          <span id="live-label">offline</span>
+        </span>
+        <button
+          id="token-button"
+          class="btn btn--ghost"
+          type="button"
+          aria-haspopup="dialog"
+          aria-label="Set operator token for mutating actions"
+        >
+          <span id="token-state" class="token-state" aria-hidden="true"></span>
+          <span>token</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main" class="app" tabindex="-1">
+      <div id="view" class="view" aria-live="polite"></div>
+    </main>
+
+    <footer class="footer">
+      <span>VANTAGE · authorized-scope-gated assessment workbench</span>
+      <span class="mono">127.0.0.1 only</span>
+      <span>all actions recorded in the engagement audit trail</span>
+    </footer>
+
+    <div id="drawer-root"></div>
+    <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="false"></div>
+
+    <dialog id="token-dialog" class="dialog" aria-labelledby="token-dialog-title">
+      <form id="token-form" class="dialog-body" novalidate>
+        <h2 id="token-dialog-title">Operator token</h2>
+        <p>
+          Changing finding status writes to the engagement store. Paste the token printed when the
+          dashboard server starts. It is kept in this tab's session storage only.
+        </p>
+        <label for="token-input">x-vantage-token</label>
+        <input
+          id="token-input"
+          name="token"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="paste operator token"
+        />
+        <div class="dialog-actions">
+          <button id="token-clear" class="btn btn--ghost" type="button">Clear token</button>
+          <button id="token-cancel" class="btn btn--ghost" type="button">Cancel</button>
+          <button class="btn btn--primary" type="submit">Save token</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

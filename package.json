@@ -1,0 +1,16 @@
+{
+  "name": "vantage",
+  "version": "1.0.0",
+  "description": "Authorized security assessment workbench: scope-gated recon, web configuration checks, evidence, reports and a local dashboard",
+  "type": "module",
+  "bin": { "vantage": "bin/vantage.js" },
+  "scripts": {
+    "test": "node --test",
+    "smoke": "node scripts/smoke.mjs",
+    "demo": "node bin/vantage.js demo --serve",
+    "serve": "node bin/vantage.js serve"
+  },
+  "engines": { "node": ">=22" },
+  "author": "Darshan Sanjel",
+  "license": "MIT"
+}
