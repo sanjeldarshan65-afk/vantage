@@ -1,5 +1,7 @@
 # VANTAGE
 
+[![test](https://github.com/sanjeldarshan65-afk/vantage/actions/workflows/test.yml/badge.svg)](https://github.com/sanjeldarshan65-afk/vantage/actions/workflows/test.yml)
+
 A security assessment workbench for systems **you own or have written permission to test**. It runs DNS, email and web configuration checks, captures evidence for every finding, writes client-ready reports, and shows progress live in a local dashboard.
 
 ![Dashboard for a demo engagement: the authorization card with reference, window, scope and mode, then 12 open findings, a severity chart and report links](docs/dashboard.jpg)
