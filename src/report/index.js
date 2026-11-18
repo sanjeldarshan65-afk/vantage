@@ -6,6 +6,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { buildJsonReport } from './json.js';
 import { buildMarkdownReport } from './markdown.js';
+import { buildSarif } from './sarif.js';
 import { REPORT_DISCLAIMER, SEVERITY_META, escapeHtml as e, formatDate, formatStamp } from './shared.js';
 import { SEVERITY_ORDER, ensureDir } from '../core/util.js';
 import { FILES, engagementDir } from '../core/paths.js';
@@ -13,13 +14,14 @@ import { FILES, engagementDir } from '../core/paths.js';
 /**
  * Build every report format.
  * @param {object} storeOrSnapshot a live EngagementStore or a plain snapshot object
- * @returns {Promise<{json: string, markdown: string, html: string}>}
+ * @returns {Promise<{json: string, markdown: string, html: string, sarif: string}>}
  */
 export async function buildReport(storeOrSnapshot) {
   const snapshot = typeof storeOrSnapshot?.snapshot === 'function' ? await storeOrSnapshot.snapshot() : storeOrSnapshot;
   const report = buildJsonReport(snapshot);
   return {
     json: JSON.stringify(report, null, 2),
+    sarif: JSON.stringify(buildSarif(report), null, 2),
     markdown: buildMarkdownReport(snapshot),
     html: renderHtml(report)
   };
@@ -37,12 +39,14 @@ export async function writeReports(store, { outDir } = {}) {
   const jsonPath = path.join(dir, 'report.json');
   const markdownPath = path.join(dir, 'report.md');
   const htmlPath = path.join(dir, 'report.html');
+  const sarifPath = path.join(dir, 'report.sarif');
   await Promise.all([
     fs.writeFile(jsonPath, built.json),
     fs.writeFile(markdownPath, built.markdown),
-    fs.writeFile(htmlPath, built.html)
+    fs.writeFile(htmlPath, built.html),
+    fs.writeFile(sarifPath, built.sarif)
   ]);
-  return { dir, jsonPath, markdownPath, htmlPath };
+  return { dir, jsonPath, markdownPath, htmlPath, sarifPath };
 }
 
 const sevLabel = (s) => SEVERITY_META[s]?.label ?? s;

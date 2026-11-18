@@ -10,7 +10,7 @@ A security assessment workbench for systems **you own or have written permission
 - **Scope is enforced, not advisory.** Targets come from the engagement scope (hosts, `*.wildcards`, IPs, CIDRs, URL origins). Redirects and DNS-resolved IPs are re-checked. Exclusions always win, and refusals are logged.
 - **Authorization is recorded.** Each engagement carries an authorization reference, an authorizer and a time window. Outside the window, the guard refuses to send anything.
 - **Non-destructive only.** Read-only HTTP methods, a request budget, rate limits and timeouts. There is no exploitation, brute forcing or fuzzing, and no mode enables them.
-- **Evidence or it didn't happen.** Each finding links to redacted request/response captures. Cookies and auth headers are scrubbed.
+- **Evidence or it didn't happen.** Each finding links to redacted request/response captures. Cookies and auth headers are scrubbed, and secret-looking values in bodies (`.env` lines, private keys) are masked before anything is written to disk.
 - **The dashboard binds to 127.0.0.1 only.** Changing a finding's status requires the token printed at startup.
 
 ## Quick start
@@ -21,7 +21,16 @@ Requires Node 22 or newer. There are no dependencies to install.
 node bin/vantage.js demo --serve
 ```
 
-This starts a deliberately misconfigured lab server on loopback, assesses it, writes reports, and opens the dashboard at http://127.0.0.1:7341. The demo finds 13 issues: reflected-origin CORS with credentials, missing security headers, version disclosure, and weak cookie flags.
+This starts a deliberately misconfigured lab server on loopback, assesses it, writes reports, and opens the dashboard at http://127.0.0.1:7341. The demo finds 17 issues, including:
+
+- a downloadable `.git` directory and `.env` file
+- reflected-origin CORS with credentials
+- plain HTTP
+- missing security headers
+- version disclosure
+- weak cookie flags
+
+The lab answers 200 for every unknown path (a "soft 404"), which shows that the checks match content rather than status codes.
 
 ## Real engagements
 
@@ -48,9 +57,15 @@ Edit `data/engagements/<id>/engagement.json` to set exclusions, port policy and 
 | `recon.dns` | A/AAAA/CNAME/MX/NS/SOA records, dangling CNAMEs |
 | `recon.email` | SPF, DMARC, and DKIM selector presence |
 | `recon.subdomains` | Short in-scope subdomain wordlist, resolved through the guard |
+| `recon.ports` | TCP connect scan of about 100 common ports the scope allows; flags exposed databases, remote desktops and the Docker API |
 | `web.headers` | HSTS, CSP, framing, MIME sniffing, COOP/COEP/CORP, version disclosure |
 | `web.cookies` | Secure, HttpOnly, SameSite, prefixes, overly broad domain |
 | `web.cors` | Reflected origins, `null` origin, credentials with wildcards |
+| `web.tls` | Plain HTTP; certificate expiry, trust, hostname match, self-signed and key size; TLS 1.0/1.1 still accepted |
+| `web.exposure` | Public `.git/`, `.env`, `server-status`, `phpinfo`, `.DS_Store`, directory listing (matched by content, not status) |
+| `web.securitytxt` | RFC 9116 `security.txt` present, with Contact and a future Expires date |
+
+Passive mode skips the port scan, legacy-TLS handshakes and path checks.
 
 Every module exports pure `analyze*` helpers that are tested without a network. The rules for adding a module are in [ENGINEERING.md](ENGINEERING.md).
 
@@ -61,13 +76,14 @@ Every module exports pure `analyze*` helpers that are tested without a network. 
 - `report.html`, the deliverable, printable
 - `report.md`
 - `report.json`, a stable schema
+- `report.sarif`, SARIF 2.1.0 for DefectDojo, GitHub code scanning and other vulnerability trackers
 
 Each report has an executive summary with a risk rating, a severity table, scope, findings with remediation, CWE/OWASP mapping and evidence IDs, methodology, limitations, and a disclaimer. Target-controlled text is HTML-escaped.
 
 ## Development
 
 ```
-npm test        # 76 tests, all on loopback, no internet needed
+npm test        # 83 tests, all on loopback, no internet needed
 npm run smoke   # import/instantiation smoke test
 ```
 
@@ -84,6 +100,8 @@ test/                 node:test suites
 ```
 
 ## Legal
+
+See [SECURITY.md](SECURITY.md) for reporting a vulnerability in VANTAGE and the acceptable-use policy.
 
 Use VANTAGE only against systems you own or are explicitly authorized in writing to assess. You are responsible for staying within your authorization.
 

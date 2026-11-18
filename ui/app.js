@@ -129,6 +129,7 @@ async function renderEngagement(id, tab) {
         <a class="btn btn--primary" target="_blank" rel="noopener" href="/api/engagements/${enc(id)}/report?format=html">Open HTML report</a>
         <a class="btn" download href="/api/engagements/${enc(id)}/report?format=md">Markdown</a>
         <a class="btn" download href="/api/engagements/${enc(id)}/report?format=json">JSON</a>
+        <a class="btn" download href="/api/engagements/${enc(id)}/report?format=sarif">SARIF</a>
       </div><p class="report-note">Built from the latest data each time you open it.</p></section>
     </div>
     <nav class="tabs" aria-label="Engagement sections">${TABS.map(([k, label]) => `<a class="tab" ${k === tab ? 'aria-current="page"' : ''} href="#/e/${enc(id)}/${k}">${label}<span class="tab-count">${counts[k]}</span></a>`).join('')}</nav>

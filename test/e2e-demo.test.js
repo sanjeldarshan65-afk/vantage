@@ -24,9 +24,13 @@ test('demo: lab target -> engine -> findings -> reports', async () => {
     const { run } = await new Engine({ store, guard, logger, registry: await loadModules() }).run();
     assert.equal(run.status, 'completed');
     const checks = store.listFindings().map((f) => f.check);
-    for (const expected of ['web.cors', 'web.cookies', 'web.headers']) {
+    for (const expected of ['web.cors', 'web.cookies', 'web.headers', 'web.tls.no-https', 'web.exposure.git', 'web.exposure.env', 'web.securitytxt.missing']) {
       assert.ok(checks.some((c) => c.startsWith(expected)), `expected a ${expected} finding, got ${checks}`);
     }
+    assert.ok(!checks.includes('web.exposure.phpinfo'), 'soft-404 home page must not count as phpinfo');
+    const evidenceFile = await fs.readFile(path.join(store.dir, 'evidence.jsonl'), 'utf8');
+    assert.ok(!evidenceFile.includes('not-a-real-password'), '.env secret value must be redacted in evidence');
+    assert.ok(evidenceFile.includes('DB_PASSWORD=<redacted>'));
     assert.ok(store.listFindings().every((f) => f.evidence.length > 0), 'every finding links evidence');
     await store.flush();
     const [summary] = await EngagementStore.list({ engagementsRoot: root });
@@ -35,6 +39,10 @@ test('demo: lab target -> engine -> findings -> reports', async () => {
     const built = await buildReport(store);
     assert.match(built.html, /CORS reflects an arbitrary origin/);
     assert.equal(JSON.parse(built.json).summary.total, checks.length);
+    const sarif = JSON.parse(built.sarif);
+    assert.equal(sarif.version, '2.1.0');
+    assert.equal(sarif.runs[0].results.length, checks.length, 'one SARIF result per open finding');
+    assert.ok(sarif.runs[0].tool.driver.rules.every((r) => r.properties['security-severity']));
     const paths = await writeReports(store);
     assert.ok((await fs.stat(paths.htmlPath)).size > 1000);
   } finally {

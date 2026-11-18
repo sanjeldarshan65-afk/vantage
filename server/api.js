@@ -16,7 +16,8 @@ const MAX_NOTE_CHARS = 2000;
 const REPORT_FORMATS = Object.freeze({
   json: { type: 'application/json; charset=utf-8', ext: 'json' },
   md: { type: 'text/markdown; charset=utf-8', ext: 'md' },
-  html: { type: 'text/html; charset=utf-8', ext: 'html' }
+  html: { type: 'text/html; charset=utf-8', ext: 'html' },
+  sarif: { type: 'application/sarif+json; charset=utf-8', ext: 'sarif' }
 });
 
 /** An error carrying the HTTP status and stable code the API should return. */
@@ -379,7 +380,7 @@ export function createApiHandler({ engagementsRoot, token, logger = null, bus = 
         throw new HttpError(500, 'report.failed', `Report generation failed: ${snapshotError.message}`);
       }
     }
-    const payload = format === 'md' ? built?.markdown : format === 'html' ? built?.html : built?.json;
+    const payload = format === 'md' ? built?.markdown : format === 'html' ? built?.html : format === 'sarif' ? built?.sarif : built?.json;
     if (payload === undefined || payload === null) {
       throw new HttpError(500, 'report.failed', `Report module did not return content for format "${format}".`);
     }

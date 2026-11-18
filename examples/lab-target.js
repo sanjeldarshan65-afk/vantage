@@ -5,6 +5,8 @@
  *   - version-disclosing Server and X-Powered-By headers
  *   - session cookie without Secure / HttpOnly / SameSite
  *   - CORS that reflects any Origin and allows credentials
+ *   - plain HTTP only, a public /.git/HEAD and /.env (dummy values), no security.txt
+ *   - "soft 404": unknown paths answer 200, to prove checks rely on content, not status
  */
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
@@ -25,7 +27,18 @@ export async function startLab(port = 0) {
       headers['access-control-allow-origin'] = req.headers.origin;
       headers['access-control-allow-credentials'] = 'true';
     }
-    res.writeHead(req.url === '/' ? 200 : 404, headers);
+    // Fake leaked files (values are dummies) so the exposure checks have something to find.
+    const leaks = {
+      '/.git/HEAD': 'ref: refs/heads/main\n',
+      '/.env': 'APP_NAME=lab\nDB_HOST=127.0.0.1\nDB_PASSWORD=not-a-real-password\nSTRIPE_SECRET_KEY=sk_test_dummy\n'
+    };
+    if (leaks[req.url]) {
+      res.writeHead(200, { ...headers, 'content-type': 'text/plain' });
+      res.end(req.method === 'HEAD' ? undefined : leaks[req.url]);
+      return;
+    }
+    // Soft 404: every unknown path answers 200 with the home page, like many real sites.
+    res.writeHead(200, headers);
     res.end(req.method === 'HEAD' ? undefined : '<!doctype html><title>Lab</title><h1>VANTAGE lab target</h1>');
   });
   await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));

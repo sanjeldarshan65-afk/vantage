@@ -17,6 +17,21 @@ export function redactSetCookie(raw) {
   return [`${name}=<redacted>`, ...attributes].join('; ');
 }
 
+const SECRET_LINE = /^(\s*(?:export\s+)?[\w.-]*(?:key|secret|token|pass(?:word|wd)?|pwd|auth|credential|dsn|database_url|private)[\w.-]*\s*[=:]\s*)(\S.*)$/gim;
+const PRIVATE_KEY = /-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)/g;
+
+/**
+ * Mask secret-looking values in a captured body preview (.env files, config dumps, key files).
+ * Key names stay visible so a finding stays provable; the values never reach disk.
+ * @param {string} text
+ * @returns {string}
+ */
+export function redactSecrets(text) {
+  return String(text ?? '')
+    .replace(PRIVATE_KEY, '-----BEGIN PRIVATE KEY----- <redacted> -----END PRIVATE KEY-----')
+    .replace(SECRET_LINE, '$1<redacted>');
+}
+
 /** Build a redacted, hashable copy of an HTTP exchange for storage. */
 function buildEvidenceRecord({ engagementId, runId, module, request, response, redirects = [], kind = 'http', extra = {} }) {
   const redactedRequest = {
@@ -25,7 +40,7 @@ function buildEvidenceRecord({ engagementId, runId, module, request, response, r
     headers: redactHeaders(request.headers)
   };
   const body = Buffer.isBuffer(response.body) ? response.body : Buffer.from(String(response.body ?? ''), 'utf8');
-  const preview = truncate(body.toString('utf8'), 4096);
+  const preview = redactSecrets(truncate(body.toString('utf8'), 4096));
   const redactedResponse = {
     status: response.status,
     statusText: response.statusText,
